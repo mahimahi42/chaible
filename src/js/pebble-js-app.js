@@ -105,3 +105,8 @@ function transferImageBytes(bytes, chunkSize, successCb, failureCb) {
     }, failure);
 
 }
+
+// Show configuration webpage
+Pebble.addEventListener("showConfiguration", function() {
+    Pebble.openURL("http://bryceadavis.com");
+});
