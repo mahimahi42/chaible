@@ -1,0 +1,23 @@
+{
+  "uuid": "807bd5ee-ae63-4253-8aa6-bd00015e9701",
+  "shortName": "Chaible",
+  "longName": "Chaible for Pebble",
+  "companyName": "Datum Unlimited",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": [
+    {
+        "type": "png",
+        "name": "SPLASH",
+        "file": "splash.png"
+    }    
+    ]
+  }
+}
