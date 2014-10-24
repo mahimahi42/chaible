@@ -1,60 +1,84 @@
-#include <pebble.h>
+#include "chaible.h"
 
-static Window *window;
-static TextLayer *text_layer;
-
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Select");
+int main(void)
+{
+    main_init();
+    app_event_loop();
+    main_deinit();
 }
 
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Up");
+// Handler for main window loading
+void main_window_load(Window* window)
+{}
+
+// Handler for splash screen loading
+void splash_window_load(Window* window)
+{
+    Layer* window_layer = window_get_root_layer(splash_window);
+    GRect bounds = layer_get_frame(window_layer);
+
+    splash_layer = bitmap_layer_create(bounds);
+    splash_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SPLASH);
+    bitmap_layer_set_bitmap(splash_layer, splash_bitmap);
+    layer_add_child(window_layer, bitmap_layer_get_layer(splash_layer));
+
+    app_timer_register(3000, &finish_splash, NULL);
 }
 
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "Down");
+// Handler for main window unloading
+void main_window_unload(Window* window)
+{}
+
+// Handler for splash screen unloading
+void splash_window_unload(Window* window)
+{
+    gbitmap_destroy(splash_bitmap);
+    bitmap_layer_destroy(splash_layer);
 }
 
-static void click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+// Create the main window
+void main_init()
+{
+    main_window = window_create();
+    window_set_fullscreen(main_window, FULLSCREEN);
+    window_set_background_color(main_window, GColorBlack);
+    window_set_window_handlers(main_window, (WindowHandlers) {
+        .load = main_window_load,
+        .unload = main_window_unload,
+    });
+    window_stack_push(main_window, ANIMATED);
+    if (SHOW_SPLASH) {
+        SHOW_SPLASH = false;
+        splash_init();
+    }
 }
 
-static void window_load(Window *window) {
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(window_layer);
-
-  text_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
-  text_layer_set_text(text_layer, "Press a button");
-  text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
-  layer_add_child(window_layer, text_layer_get_layer(text_layer));
+// Create the splash screen
+void splash_init()
+{
+    splash_window = window_create();
+    window_set_fullscreen(splash_window, FULLSCREEN);
+    window_set_window_handlers(splash_window, (WindowHandlers) {
+        .load = splash_window_load,
+        .unload = splash_window_unload,
+    });
+    window_stack_push(splash_window, ANIMATED);
 }
 
-static void window_unload(Window *window) {
-  text_layer_destroy(text_layer);
+// Destroy the main window
+void main_deinit()
+{
+    window_destroy(main_window);
 }
 
-static void init(void) {
-  window = window_create();
-  window_set_click_config_provider(window, click_config_provider);
-  window_set_window_handlers(window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload,
-  });
-  const bool animated = true;
-  window_stack_push(window, animated);
+// Destroy the splash screen
+void splash_deinit()
+{
+    window_destroy(splash_window);
 }
 
-static void deinit(void) {
-  window_destroy(window);
-}
-
-int main(void) {
-  init();
-
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Done initializing, pushed window: %p", window);
-
-  app_event_loop();
-  deinit();
+// Splash Window AppTimer callback
+void finish_splash(void* data)
+{
+    window_stack_pop(ANIMATED);
 }
