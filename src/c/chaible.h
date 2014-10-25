@@ -6,7 +6,7 @@
 // Constants
 #define ANIMATED true
 #define FULLSCREEN true
-#define SPLASH_TIME 50000
+#define SPLASH_TIME 3000
 
 // Globals
 static bool SHOW_SPLASH = true;
