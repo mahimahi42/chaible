@@ -22,7 +22,7 @@ void splash_window_load(Window* window)
     bitmap_layer_set_bitmap(splash_layer, splash_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(splash_layer));
 
-    app_timer_register(3000, &finish_splash, NULL);
+    app_timer_register(SPLASH_TIME, &finish_splash, NULL);
 }
 
 // Handler for main window unloading
