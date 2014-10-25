@@ -17,3 +17,7 @@ pebble_app.ld
 
 # Ignore other generated files
 serial_dump.txt
+
+# Ignore config page
+chaible-config.html
+.DS_Store
