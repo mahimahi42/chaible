@@ -4,27 +4,71 @@ Pebble.addEventListener("ready", function(e) {
   console.log("NetDownload JS Ready");
 });
 
-Pebble.addEventListener("appmessage", function(e) {
-  console.log("Got message: " + JSON.stringify(e));
-
-  if ('NETDL_URL' in e.payload) {
-    if (transferInProgress == false) {
-      transferInProgress = true;
-      downloadBinaryResource(e.payload['NETDL_URL'], function(bytes) {
-        transferImageBytes(bytes, e.payload['NETDL_CHUNK_SIZE'],
-          function() { console.log("Done!"); transferInProgress = false; },
-          function(e) { console.log("Failed! " + e); transferInProgress = false; }
-        );
-      },
-      function(e) {
-        console.log("Download failed: " + e); transferInProgress = false;
-      });
-    }
-    else {
-      console.log("Ignoring request to download " + e.payload['NETDL_URL'] + " because another download is in progress.");
-    }
-  }
+// Show configuration webpage
+Pebble.addEventListener("showConfiguration", function() {
+    Pebble.openURL("http://bryceadavis.com/chaible-config.html");
 });
+
+// We've received the configuration
+Pebble.addEventListener("webviewclosed", function(e) {
+    var config = JSON.parse(decodeURIComponent(e.response));
+    console.log("S'bux num: " + config);
+    
+//    var barcodeURL = "http://www.bcmaker.com/cgi-bin/pdf417cgid?data=" + JSON.stringify(config) + "&cmode=0&ecl=9&col=2&row=0&cpdf=1&angle=0&quiet=1&alignh=1&alignv=1&bcolor=ffffff&fcolor=000000&y2x=4.0&xdim=2&w=144&h=&submit=+Generate+PDF417+&debug=1"
+
+    var barcodeURL = "http://generator.barcodetools.com/barcode.png?gen=2&data=" + JSON.stringify(config) + "&col=3&row=0&bcolor=FFFFFF&fcolor=000000&y2x=4.0&xdim=2&w=144&h=&cmode=0&ecl=9&cpdf=0&angle=0&quiet=1&alignh=1&alignv=1"
+    var barcodeXHR = new XMLHttpRequest();
+    barcodeXHR.open("GET", barcodeURL, true);
+    barcodeXHR.responseType = "arraybuffer";
+    barcodeXHR.onload = function(e) {
+        var byteArray = barcodeXHR.response;
+        if (byteArray) {
+            transferImageBytes(byteArray, 176877475,
+                function() { console.log("Done transmitting!"); },
+                function(e) { console.log("Error transmitting: " + e); }
+            );
+        }
+    };
+    barcodeXHR.send(null);
+
+    //if (transferInProgress == false) {
+        //transferInProgress = true;
+        //downloadBinaryResource(barcodeURL, function(bytes) {
+                //transferImageBytes(bytes, 1768777475,
+                //function() { console.log("Done transmitting!"); transferInProgress = false; },
+                //function(e) { console.log("Transmission failed: " + e); transferInProgress = false; }
+                //);
+        //},
+            //function(e) {
+                //console.log("Download failed: " + e);
+                //transferInProgress = false;
+            //});
+    //} else {
+        //console.log("Another transfer is in progress.");
+    //}
+});
+
+//Pebble.addEventListener("appmessage", function(e) {
+  //console.log("Got message: " + JSON.stringify(e));
+
+  //if ('NETDL_URL' in e.payload) {
+    //if (transferInProgress == false) {
+      //transferInProgress = true;
+      //downloadBinaryResource(e.payload['NETDL_URL'], function(bytes) {
+        //transferImageBytes(bytes, e.payload['NETDL_CHUNK_SIZE'],
+          //function() { console.log("Done!"); transferInProgress = false; },
+          //function(e) { console.log("Failed! " + e); transferInProgress = false; }
+        //);
+      //},
+      //function(e) {
+        //console.log("Download failed: " + e); transferInProgress = false;
+      //});
+    //}
+    //else {
+      //console.log("Ignoring request to download " + e.payload['NETDL_URL'] + " because another download is in progress.");
+    //}
+  //}
+//});
 
 function downloadBinaryResource(imageURL, callback, errorCallback) {
     var req = new XMLHttpRequest();
@@ -106,13 +150,4 @@ function transferImageBytes(bytes, chunkSize, successCb, failureCb) {
 
 }
 
-// Show configuration webpage
-Pebble.addEventListener("showConfiguration", function() {
-    Pebble.openURL("http://bryceadavis.com/chaible-config.html");
-});
 
-// We've received the configuration
-Pebble.addEventListener("webviewclosed", function(e) {
-    var config = JSON.parse(decodeURIComponent(e.response));
-    console.log("S'bux num: " + JSON.stringify(config));
-});
