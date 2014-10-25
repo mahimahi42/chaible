@@ -4,8 +4,17 @@
 
     </head>
     <body>
-        <form>
-        Starbucks #: <input type="number" name="sbuxnum" />
+        <form id="configForm">
+        Starbucks #: <input type="number" name="sbuxnum" /><br />
         </form>
+
+        <button type="submit" onclick="submitNumber()">Save and Close</button>
+
+        <script>
+        function submitNumber() {
+            var num = document.getElementById("configForm").elements[0].value;
+            document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(num));
+        }
+        </script>
     </body>
 </html>

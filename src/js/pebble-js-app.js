@@ -108,5 +108,11 @@ function transferImageBytes(bytes, chunkSize, successCb, failureCb) {
 
 // Show configuration webpage
 Pebble.addEventListener("showConfiguration", function() {
-    Pebble.openURL("http://bryceadavis.com");
+    Pebble.openURL("http://bryceadavis.com/chaible-config.html");
+});
+
+// We've received the configuration
+Pebble.addEventListener("webviewclosed", function(e) {
+    var config = JSON.parse(decodeURIComponent(e.response));
+    console.log("S'bux num: " + JSON.stringify(config));
 });
